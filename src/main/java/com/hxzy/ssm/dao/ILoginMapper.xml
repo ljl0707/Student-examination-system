@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace 表示使用具体的接口，必须添加 -->
+<mapper namespace="com.hxzy.ssm.dao.ILoginMapper">
+    <!-- 开启了二级缓存 -->
+    <!-- <cache/> -->
+    <select id="login" parameterType="string" resultType="User">
+       select t.id,t.username,t.usertype,t.sex,t.tel,t.age,t.pwd  
+       from t_user t where t.username=#{name} and t.pwd=#{pwd}
+    </select>
+    
+</mapper>

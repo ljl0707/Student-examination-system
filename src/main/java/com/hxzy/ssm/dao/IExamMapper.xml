@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace 表示使用具体的接口，必须添加 -->
+<mapper namespace="com.hxzy.ssm.dao.IExamMapper">
+    <!-- 开启了二级缓存 -->
+<!--     <cache/> -->
+    
+    <!-- 查询试卷信息 -->
+    <select id="getExams"  parameterType="string" resultType="map">
+        select t.pid,t.pname,t.ptimes,t.qids,t.statime,
+		date_add(t.statime,interval t.ptimes hour) endtime,t.status,s.scid,s.scores  
+		from t_paper t 
+		left join t_scores s on t.pid=s.pid and s.userid=#{userid}
+		order by t.statime desc  
+    </select>
+    
+    <select id="getFileById" parameterType="String" resultType="String">
+        select t.url from t_paper t where t.pid=#{pid}
+    </select>
+    
+    <select id="getQues" parameterType="map" resultType="Question">
+        select t.id,t.qname,t.qscore,t.qtype,t.qanswer 
+        from t_question t where t.id in (${qids}) 
+        order by t.qtype 
+    </select>
+    
+    <select id="getQptionsByQid" parameterType="int" resultType="Option">
+        select t.opcontent from t_option t where t.qid=#{qid}
+    </select>
+    
+    <insert id="save" parameterType="Scores">
+         insert into t_scores (scores,pid,userid,myanswer,usetimes) values (#{scores},#{paper.pid},#{user.id},#{myanswer},#{usetimes})
+    </insert>
+    
+    <update id="updateStatus">
+       update t_paper t set t.status=0 
+       where t.status=1 and now()>date_add(t.statime,interval t.ptimes hour)
+    </update>
+    
+</mapper>

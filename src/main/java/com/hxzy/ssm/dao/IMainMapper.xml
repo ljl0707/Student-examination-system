@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hxzy.ssm.dao.IMainMapper">
+    <cache/>
+    
+    <!-- 通过pid查询数据 -->
+    <select id="getMenuByPid" parameterType="string" resultType="Menu">
+         select t.id,t.name,t.pid,t.url from t_menu t where t.pid=#{pid}
+    </select>
+</mapper>

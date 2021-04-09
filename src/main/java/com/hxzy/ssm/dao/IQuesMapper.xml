@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace 表示使用具体的接口，必须添加 -->
+<mapper namespace="com.hxzy.ssm.dao.IQuesMapper">
+    <!-- 开启了二级缓存 -->
+    <cache/>
+    
+    <!-- 增加 -->
+    <insert id="add" parameterType="Question" useGeneratedKeys="true" keyProperty="id">
+        insert into t_question(qname,qanswer,qscore,qtype,qcourse,qstage) 
+        VALUES(#{qname,jdbcType=VARCHAR},#{qanswer,jdbcType=VARCHAR},#{qscore,jdbcType=NUMERIC},#{qtype,jdbcType=VARCHAR},#{qcourse,jdbcType=VARCHAR},#{qstage,jdbcType=VARCHAR})
+    </insert>
+    
+    <insert id="saveOption" parameterType="Option">
+       insert into t_option (opcontent,qid) values (#{opcontent},#{qid})
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="Question">
+         update t_question t
+         <set>
+            <if test="qname!=null and qname!=''">
+               t.qname=#{qname},
+            </if>
+            <if test="qanswer!=null and qanswer!='' ">
+               t.qanswer=#{qanswer},
+            </if>
+            <if test="qscore>0">
+               t.qscore=#{qscore},
+            </if>
+            <if test="qtype!=null and qtype!='' ">
+               t.qtype=#{qtype},
+            </if>
+            <if test="qcourse!=null and qcourse!='' ">
+               t.qcourse=#{qcourse},
+            </if>
+            <if test="qstage!=null and qstage!='' ">
+               t.qstage=#{qstage}
+            </if>
+            where t.id=#{id}
+         </set>
+    </update>
+    <!-- 删除 -->
+    <delete id="del" parameterType="string">
+        delete from t_question where id=#{id}
+    </delete>
+    
+    <!-- 批量删除 -->
+    <delete id="delMore" parameterType="map">
+<!--         delete from t_user where id in (${ids}) -->
+        delete from t_question where id in 
+        <!-- 
+         key(键)ids  对应的值 必须是数组或list集合
+         -->
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+           #{id}
+        </foreach> 
+    </delete>
+    
+    <delete id="delMoreOption" parameterType="map">
+        delete from t_option where qid in 
+        <!-- 
+         key(键)ids  对应的值 必须是数组或list集合
+         -->
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+           #{id}
+        </foreach> 
+    
+    </delete>
+    
+    <!-- 查询记录数 -->
+    <select id="count" parameterType="map" resultType="int">
+        select count(*) count from t_question t where 1=1
+        <include refid="whereSql"/>
+    </select>
+    
+    <select id="query" parameterType="Map" resultType="Question">
+        select t.id,t.qname,t.qanswer,t.qscore,a.typename qtype,
+		b.typename qcourse,c.typename qstage
+		from t_question t 
+		left join t_type a on t.qtype=a.typeid and a.type=0
+		left join t_type b on t.qcourse=b.typeid and b.type=2
+		left join t_type c on t.qstage=c.typeid and c.type=1
+        where 1=1
+
+         <include refid="whereSql"/>
+         limit #{skipnum},#{pagesize}
+    </select>
+    <sql id="whereSql">
+        <if test="name!=null and name!='' ">
+            and t.qname like '%${name}%'
+        </if>
+        <!-- 题目类型  1 单选 -->
+        <if test="type!=null and type!='' ">
+            and t.qtype =#{type}
+        </if>
+        <!-- 专业类别 -->
+        <if test="course!=null and course!='' ">
+            and t.qcourse =#{course}
+        </if>
+        <!-- 专业阶段 -->
+        <if test="stage!=null and stage!='' ">
+            and t.qstage =#{stage}
+        </if>
+    </sql>
+    
+    <!-- 通过ID，查询一条数据 -->
+    <select id="getObjById" parameterType="string" resultType="Question">
+         SELECT t.ID,t.QNAME,t.QANSWER,t.QSCORE,t.QTYPE,t.QCOURSE,t.QSTAGE from t_question t where t.ID=#{0}
+    </select>
+</mapper>
